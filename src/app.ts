@@ -7,7 +7,10 @@ import cryptoRoutes from './routes/crypto';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174', "https://coinbase-selasie5.netlify.app/"],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
