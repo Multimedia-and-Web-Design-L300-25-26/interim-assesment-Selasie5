@@ -19,7 +19,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const user: IUser = new User({ name, email, password });
     await user.save();
     const token = generateToken({ id: user._id, email: user.email });
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('token', token, { 
+      httpOnly: true, 
+      secure: isProduction, 
+      sameSite: isProduction ? 'none' : 'lax'
+    });
     res.status(201).json({ message: 'User registered successfully', user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -40,7 +45,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     const token = generateToken({ id: user._id, email: user.email });
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('token', token, { 
+      httpOnly: true, 
+      secure: isProduction, 
+      sameSite: isProduction ? 'none' : 'lax'
+    });
     res.json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -48,6 +58,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = (req: Request, res: Response): void => {
-  res.clearCookie('token');
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
+  });
   res.json({ message: 'Logout successful' });
 };
